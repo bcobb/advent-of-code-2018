@@ -58,11 +58,10 @@ let findFirstRepeatFrequency = l => {
   frequency^;
 };
 
-let processChanges = (changes: list('frequencyChange)) =>
-  List.fold_left(applyFrequencyChange, Int32.zero, changes);
-
 let firstSolution = () =>
-  inputLines() |> List.map(lineToFrequencyChange) |> processChanges;
+  inputLines()
+  |> List.map(lineToFrequencyChange)
+  |> List.fold_left(applyFrequencyChange, Int32.zero);
 
 let secondSolution = () =>
   inputLines() |> List.map(lineToFrequencyChange) |> findFirstRepeatFrequency;

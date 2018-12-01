@@ -85,13 +85,8 @@ function findFirstRepeatFrequency(l) {
   return frequency;
 }
 
-function processChanges(changes) {
-  return List.fold_left(applyFrequencyChange, Int32.zero, changes);
-}
-
 function firstSolution(param) {
-  var changes = List.map(lineToFrequencyChange, inputLines(/* () */0));
-  return List.fold_left(applyFrequencyChange, Int32.zero, changes);
+  return List.fold_left(applyFrequencyChange, Int32.zero, List.map(lineToFrequencyChange, inputLines(/* () */0)));
 }
 
 function secondSolution(param) {
@@ -107,7 +102,6 @@ exports.lineToFrequencyChange = lineToFrequencyChange;
 exports.applyFrequencyChange = applyFrequencyChange;
 exports.circularStream = circularStream;
 exports.findFirstRepeatFrequency = findFirstRepeatFrequency;
-exports.processChanges = processChanges;
 exports.firstSolution = firstSolution;
 exports.secondSolution = secondSolution;
 /* IntSet Not a pure module */
