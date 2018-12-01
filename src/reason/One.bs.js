@@ -13,18 +13,20 @@ var Caml_int32 = require("bs-platform/lib/js/caml_int32.js");
 var Caml_format = require("bs-platform/lib/js/caml_format.js");
 var Caml_string = require("bs-platform/lib/js/caml_string.js");
 var Js_primitive = require("bs-platform/lib/js/js_primitive.js");
-var Caml_exceptions = require("bs-platform/lib/js/caml_exceptions.js");
 
 var IntSet = $$Set.Make([Int32.compare]);
-
-var UnknownOperation = Caml_exceptions.create("One-Aoc2018.UnknownOperation");
 
 function inputLines(param) {
   return $$Array.to_list(Fs.readFileSync("resources/one.txt", "utf8").split("\n"));
 }
 
 function lineToOperation(line) {
-  return Caml_string.get(line, 0);
+  var match = Caml_string.get(line, 0) === /* "+" */43;
+  if (match) {
+    return /* Positive */0;
+  } else {
+    return /* Negative */1;
+  }
 }
 
 function lineToAmount(line) {
@@ -34,32 +36,17 @@ function lineToAmount(line) {
 
 function lineToFrequencyChange(line) {
   return /* tuple */[
-          Caml_string.get(line, 0),
+          lineToOperation(line),
           lineToAmount(line)
         ];
 }
 
 function applyFrequencyChange(total, change) {
-  var operation = change[0];
-  var exit = 0;
-  switch (operation) {
-    case 43 : 
-        return total + change[1] | 0;
-    case 44 : 
-        exit = 1;
-        break;
-    case 45 : 
-        return total - change[1] | 0;
-    default:
-      exit = 1;
+  if (change[0]) {
+    return total - change[1] | 0;
+  } else {
+    return total + change[1] | 0;
   }
-  if (exit === 1) {
-    throw [
-          UnknownOperation,
-          "unknown operation: " + $$String.make(1, operation)
-        ];
-  }
-  
 }
 
 function circularStream(l) {
@@ -94,7 +81,6 @@ function secondSolution(param) {
 }
 
 exports.IntSet = IntSet;
-exports.UnknownOperation = UnknownOperation;
 exports.inputLines = inputLines;
 exports.lineToOperation = lineToOperation;
 exports.lineToAmount = lineToAmount;

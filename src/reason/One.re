@@ -1,17 +1,18 @@
 module IntSet = Set.Make(Int32);
 
-type operation = char;
+type operation =
+  | Positive
+  | Negative;
 type amount = Int32.t;
 type frequencyChange = (operation, amount);
-
-exception UnknownOperation(string);
 
 let inputLines = () =>
   Node.Fs.readFileAsUtf8Sync("resources/one.txt")
   |> Js.String.split("\n")
   |> Array.to_list;
 
-let lineToOperation = (line: string): operation => line.[0];
+let lineToOperation = (line: string): operation =>
+  line.[0] == '+' ? Positive : Negative;
 let lineToAmount = (line: string): Int32.t => {
   let rangeEnd = String.length(line);
 
@@ -25,12 +26,8 @@ let lineToFrequencyChange = (line: string): frequencyChange => (
 
 let applyFrequencyChange = (total: Int32.t, change: frequencyChange): Int32.t =>
   switch (change) {
-  | ('+', amount) => Int32.add(total, amount)
-  | ('-', amount) => Int32.sub(total, amount)
-  | (operation, _) =>
-    raise(
-      UnknownOperation("unknown operation: " ++ String.make(1, operation)),
-    )
+  | (Positive, amount) => Int32.add(total, amount)
+  | (Negative, amount) => Int32.sub(total, amount)
   };
 
 let circularStream = (l: list('a)): Stream.t('a) => {
