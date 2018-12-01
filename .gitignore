@@ -4,3 +4,14 @@
 npm-debug.log
 /lib/bs/
 /node_modules/
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+.hgignore
+.hg/
