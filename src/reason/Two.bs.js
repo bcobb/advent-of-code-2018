@@ -4,8 +4,10 @@
 var Fs = require("fs");
 var $$Map = require("bs-platform/lib/js/map.js");
 var Char = require("bs-platform/lib/js/char.js");
+var List = require("bs-platform/lib/js/list.js");
 var $$Array = require("bs-platform/lib/js/array.js");
 var Curry = require("bs-platform/lib/js/curry.js");
+var $$String = require("bs-platform/lib/js/string.js");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Caml_int32 = require("bs-platform/lib/js/caml_int32.js");
 var Caml_string = require("bs-platform/lib/js/caml_string.js");
@@ -17,13 +19,13 @@ function inputLines(param) {
   return $$Array.to_list(Fs.readFileSync("resources/two.txt", "utf8").split("\n"));
 }
 
-function arrayFromString(s) {
+function stringAsCollection(s) {
   return $$Array.init(s.length, (function (param) {
                 return Caml_string.get(s, param);
               }));
 }
 
-function characterHistogram(arrayOfChars) {
+function characterHistogram(chars) {
   return $$Array.fold_left((function (map, aChar) {
                 var exit = 0;
                 var item;
@@ -42,7 +44,7 @@ function characterHistogram(arrayOfChars) {
                   return Curry._3(CharMap[/* add */3], aChar, item + 1 | 0, map);
                 }
                 
-              }), CharMap[/* empty */0], arrayOfChars);
+              }), CharMap[/* empty */0], chars);
 }
 
 function hasValue(value, map) {
@@ -52,12 +54,12 @@ function hasValue(value, map) {
 }
 
 function boxIdHistogram(boxId) {
-  return characterHistogram(arrayFromString(boxId));
+  return characterHistogram(stringAsCollection(boxId));
 }
 
 function checksum(boxIds) {
-  var histograms = $$Array.map(boxIdHistogram, boxIds);
-  var numberOfTwos = $$Array.fold_left((function (total, histogram) {
+  var histograms = List.map(boxIdHistogram, boxIds);
+  var numberOfTwos = List.fold_left((function (total, histogram) {
           var match = hasValue(2, histogram);
           if (match) {
             return total + 1 | 0;
@@ -65,7 +67,7 @@ function checksum(boxIds) {
             return total;
           }
         }), 0, histograms);
-  var numberOfThrees = $$Array.fold_left((function (total, histogram) {
+  var numberOfThrees = List.fold_left((function (total, histogram) {
           var match = hasValue(3, histogram);
           if (match) {
             return total + 1 | 0;
@@ -76,16 +78,65 @@ function checksum(boxIds) {
   return Caml_int32.imul(numberOfThrees, numberOfTwos);
 }
 
+function positionalEqualities(combo) {
+  var boxIdB = combo[1];
+  return $$Array.mapi((function (index, $$char) {
+                return Caml_string.get(boxIdB, index) === $$char;
+              }), stringAsCollection(combo[0]));
+}
+
+function offByOne(combo) {
+  return 1 === $$Array.fold_left((function (inequalities, isEqual) {
+                if (isEqual) {
+                  return inequalities;
+                } else {
+                  return inequalities + 1 | 0;
+                }
+              }), 0, positionalEqualities(combo));
+}
+
+function allCombinationsOfTwo(boxIds) {
+  return List.flatten(List.map((function (boxId) {
+                    return List.map((function (otherBoxId) {
+                                  return /* tuple */[
+                                          boxId,
+                                          otherBoxId
+                                        ];
+                                }), boxIds);
+                  }), boxIds));
+}
+
+function commonLetters(combo) {
+  var boxIdB = combo[1];
+  return $$String.concat("", $$Array.to_list($$Array.mapi((function (index, $$char) {
+                        var match = Caml_string.get(boxIdB, index) === $$char;
+                        if (match) {
+                          return $$String.make(1, $$char);
+                        } else {
+                          return "";
+                        }
+                      }), stringAsCollection(combo[0]))));
+}
+
 function firstSolution(param) {
-  return checksum($$Array.of_list(inputLines(/* () */0)));
+  return checksum(inputLines(/* () */0));
+}
+
+function secondSolution(param) {
+  return commonLetters(List.find(offByOne, allCombinationsOfTwo(inputLines(/* () */0))));
 }
 
 exports.CharMap = CharMap;
 exports.inputLines = inputLines;
-exports.arrayFromString = arrayFromString;
+exports.stringAsCollection = stringAsCollection;
 exports.characterHistogram = characterHistogram;
 exports.hasValue = hasValue;
 exports.boxIdHistogram = boxIdHistogram;
 exports.checksum = checksum;
+exports.positionalEqualities = positionalEqualities;
+exports.offByOne = offByOne;
+exports.allCombinationsOfTwo = allCombinationsOfTwo;
+exports.commonLetters = commonLetters;
 exports.firstSolution = firstSolution;
+exports.secondSolution = secondSolution;
 /* CharMap Not a pure module */
