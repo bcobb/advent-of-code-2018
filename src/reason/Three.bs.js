@@ -3,7 +3,6 @@
 
 var Fs = require("fs");
 var $$Map = require("bs-platform/lib/js/map.js");
-var $$Set = require("bs-platform/lib/js/set.js");
 var List = require("bs-platform/lib/js/list.js");
 var $$Array = require("bs-platform/lib/js/array.js");
 var Curry = require("bs-platform/lib/js/curry.js");
@@ -15,8 +14,6 @@ var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exception
 var compare = Caml_obj.caml_compare;
 
 var Point = /* module */[/* compare */compare];
-
-var PointSet = $$Set.Make(Point);
 
 var PointMap = $$Map.Make(Point);
 
@@ -95,8 +92,23 @@ function first_solution(param) {
                   }), point_histogram(List.flatten(List.map(points_of_claim, List.map(claim_of_string, inputLines(/* () */0)))))));
 }
 
+function second_solution(param) {
+  var claims = List.map(claim_of_string, inputLines(/* () */0));
+  var solitary_points = Curry._2(PointMap[/* filter */13], (function (param, frequency) {
+          return frequency === 1;
+        }), point_histogram(List.flatten(List.map(points_of_claim, claims))));
+  return List.find((function (claim) {
+                  return List.fold_left((function (every, point) {
+                                if (every) {
+                                  return Curry._2(PointMap[/* mem */2], point, solitary_points);
+                                } else {
+                                  return false;
+                                }
+                              }), true, points_of_claim(claim));
+                }), claims)[/* number */0];
+}
+
 exports.Point = Point;
-exports.PointSet = PointSet;
 exports.PointMap = PointMap;
 exports.inputLines = inputLines;
 exports.nullClaim = nullClaim;
@@ -104,4 +116,5 @@ exports.claim_of_string = claim_of_string;
 exports.points_of_claim = points_of_claim;
 exports.point_histogram = point_histogram;
 exports.first_solution = first_solution;
-/* PointSet Not a pure module */
+exports.second_solution = second_solution;
+/* PointMap Not a pure module */

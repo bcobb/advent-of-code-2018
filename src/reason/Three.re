@@ -15,8 +15,6 @@ module Point = {
   let compare = Pervasives.compare;
 };
 
-module PointSet = Set.Make(Point);
-
 module PointMap = Map.Make(Point);
 
 let inputLines = () =>
@@ -78,3 +76,27 @@ let first_solution = () =>
   |> point_histogram
   |> PointMap.filter((_, frequency) => frequency > 1)
   |> PointMap.cardinal;
+
+let second_solution = () => {
+  let claims = inputLines() |> List.map(claim_of_string);
+
+  let solitary_points =
+    claims
+    |> List.map(points_of_claim)
+    |> List.flatten
+    |> point_histogram
+    |> PointMap.filter((_, frequency) => frequency == 1);
+
+  let solitary_claim =
+    claims
+    |> List.find(claim =>
+         points_of_claim(claim)
+         |> List.fold_left(
+              (every, point) =>
+                every && PointMap.mem(point, solitary_points),
+              true,
+            )
+       );
+
+  solitary_claim.number;
+};
