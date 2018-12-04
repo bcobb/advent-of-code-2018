@@ -4,8 +4,8 @@
   "name": "aoc2018",
   "version": "0.1.0",
   "sources": {
-    "dir" : "src",
-    "subdirs" : true
+    "dir": "src/reason",
+    "subdirs": true
   },
   "package-specs": {
     "module": "commonjs",
