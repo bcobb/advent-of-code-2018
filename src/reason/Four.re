@@ -177,6 +177,62 @@ let sleepiestMinuteForGuard = (guardId, lines: list(line)) => {
   minute;
 };
 
+let secondAnswer = () => {
+  let (guardId, minute, frequency) =
+    shifts_of_lines(inputLines())
+    |> List.fold_left(
+         (map, shift) =>
+           switch (StringMap.find(shift.guardId, map)) {
+           | entry =>
+             StringMap.add(
+               shift.guardId,
+               Array.append(entry, shift.minutesAsleep),
+               map,
+             )
+           | exception Not_found =>
+             StringMap.add(shift.guardId, shift.minutesAsleep, map)
+           },
+         StringMap.empty,
+       )
+    |> StringMap.bindings
+    |> List.map(((guardId, minutesAsleep)) =>
+         switch (minutesAsleep) {
+         | [||] => (guardId, "0", 0)
+         | minutes =>
+           let (minute, frequency) =
+             Array.map(string_of_int, minutes)
+             |> Array.fold_left(
+                  (map, minute) =>
+                    switch (StringMap.find(minute, map)) {
+                    | entry => StringMap.add(minute, entry + 1, map)
+                    | exception Not_found => StringMap.add(minute, 1, map)
+                    },
+                  StringMap.empty,
+                )
+             |> StringMap.bindings
+             |> List.sort(((_, a), (_, b)) => Pervasives.compare(b, a))
+             |> List.hd;
+
+           (guardId, minute, frequency);
+         }
+       )
+    |> List.sort(((_, _, a), (_, _, b)) => Pervasives.compare(b, a))
+    |> List.hd;
+  let answer =
+    string_of_int(int_of_string(guardId) * int_of_string(minute));
+
+  Js.log(
+    "Guard #"
+    ++ guardId
+    ++ " spent minute "
+    ++ minute
+    ++ " asleep "
+    ++ string_of_int(frequency)
+    ++ " times => "
+    ++ answer,
+  );
+};
+
 let firstAnswer = () => {
   let lines = inputLines();
 
@@ -187,3 +243,5 @@ let firstAnswer = () => {
 
   Js.log(guardId ++ " * " ++ minute ++ " = " ++ answer);
 };
+
+secondAnswer();

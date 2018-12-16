@@ -204,6 +204,74 @@ function sleepiestMinuteForGuard(guardId, lines) {
                                               }))(shifts_of_lines(lines)))))))))[0];
 }
 
+function secondAnswer(param) {
+  var match = List.hd(List.sort((function (param, param$1) {
+              return Caml_primitive.caml_int_compare(param$1[2], param[2]);
+            }), List.map((function (param) {
+                  var minutesAsleep = param[1];
+                  var guardId = param[0];
+                  if (minutesAsleep.length !== 0) {
+                    var match = List.hd(List.sort((function (param, param$1) {
+                                return Caml_primitive.caml_int_compare(param$1[1], param[1]);
+                              }), Curry._1(StringMap[/* bindings */16], $$Array.fold_left((function (map, minute) {
+                                        var exit = 0;
+                                        var entry;
+                                        try {
+                                          entry = Curry._2(StringMap[/* find */21], minute, map);
+                                          exit = 1;
+                                        }
+                                        catch (exn){
+                                          if (exn === Caml_builtin_exceptions.not_found) {
+                                            return Curry._3(StringMap[/* add */3], minute, 1, map);
+                                          } else {
+                                            throw exn;
+                                          }
+                                        }
+                                        if (exit === 1) {
+                                          return Curry._3(StringMap[/* add */3], minute, entry + 1 | 0, map);
+                                        }
+                                        
+                                      }), StringMap[/* empty */0], $$Array.map((function (prim) {
+                                            return String(prim);
+                                          }), minutesAsleep)))));
+                    return /* tuple */[
+                            guardId,
+                            match[0],
+                            match[1]
+                          ];
+                  } else {
+                    return /* tuple */[
+                            guardId,
+                            "0",
+                            0
+                          ];
+                  }
+                }), Curry._1(StringMap[/* bindings */16], List.fold_left((function (map, shift) {
+                          var exit = 0;
+                          var entry;
+                          try {
+                            entry = Curry._2(StringMap[/* find */21], shift[/* guardId */0], map);
+                            exit = 1;
+                          }
+                          catch (exn){
+                            if (exn === Caml_builtin_exceptions.not_found) {
+                              return Curry._3(StringMap[/* add */3], shift[/* guardId */0], shift[/* minutesAsleep */1], map);
+                            } else {
+                              throw exn;
+                            }
+                          }
+                          if (exit === 1) {
+                            return Curry._3(StringMap[/* add */3], shift[/* guardId */0], $$Array.append(entry, shift[/* minutesAsleep */1]), map);
+                          }
+                          
+                        }), StringMap[/* empty */0], shifts_of_lines(inputLines(/* () */0)))))));
+  var minute = match[1];
+  var guardId = match[0];
+  var answer = String(Caml_int32.imul(Caml_format.caml_int_of_string(guardId), Caml_format.caml_int_of_string(minute)));
+  console.log("Guard #" + (guardId + (" spent minute " + (minute + (" asleep " + (String(match[2]) + (" times => " + answer)))))));
+  return /* () */0;
+}
+
 function firstAnswer(param) {
   var lines = inputLines(/* () */0);
   var guardId = sleepiestGuardId(lines);
@@ -212,6 +280,8 @@ function firstAnswer(param) {
   console.log(guardId + (" * " + (minute + (" = " + answer))));
   return /* () */0;
 }
+
+secondAnswer(/* () */0);
 
 exports.range = range;
 exports.join = join;
@@ -227,5 +297,6 @@ exports.minutesAsleep = minutesAsleep;
 exports.shifts_of_lines = shifts_of_lines;
 exports.sleepiestGuardId = sleepiestGuardId;
 exports.sleepiestMinuteForGuard = sleepiestMinuteForGuard;
+exports.secondAnswer = secondAnswer;
 exports.firstAnswer = firstAnswer;
 /* StringMap Not a pure module */
