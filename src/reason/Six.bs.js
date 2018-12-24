@@ -20,6 +20,8 @@ var Coordinate = /* module */[/* compare */compare];
 
 var CoordinateMap = $$Map.Make(Coordinate);
 
+var CoordinateSet = $$Set.Make(Coordinate);
+
 var compare$1 = Caml_obj.caml_compare;
 
 var IntSet = $$Set.Make(/* module */[/* compare */compare$1]);
@@ -108,14 +110,9 @@ function closestBy(discriminator, origin, coordinates) {
                 }))(coordinates);
 }
 
-function firstAnswer(coordinates) {
-  var boundaryCoordinates$1 = boundaryCoordinates(coordinates);
-  var match = rangeIn(getX, coordinates);
-  var match$1 = rangeIn(getY, coordinates);
-  var maxY = match$1[1];
-  var minY = match$1[0];
+function gridWithBoundaries(minX, maxX, minY, maxY) {
   var space = /* array */[];
-  for(var x = match[0] ,x_finish = match[1]; x <= x_finish; ++x){
+  for(var x = minX; x <= maxX; ++x){
     for(var y = minY; y <= maxY; ++y){
       space.push(/* tuple */[
             x,
@@ -123,6 +120,14 @@ function firstAnswer(coordinates) {
           ]);
     }
   }
+  return space;
+}
+
+function firstAnswer(coordinates) {
+  var boundaryCoordinates$1 = boundaryCoordinates(coordinates);
+  var match = rangeIn(getX, coordinates);
+  var match$1 = rangeIn(getY, coordinates);
+  var space = gridWithBoundaries(match[0], match[1], match$1[0], match$1[1]);
   var coordinateAreas = $$Array.fold_left((function (map, coordinate) {
           var closest = closestBy(distance, coordinate, coordinates);
           if (closest && !closest[1]) {
@@ -176,8 +181,30 @@ function firstAnswer(coordinates) {
   return List.length(match$2[1]);
 }
 
+function totalDistance(origin, coordinates) {
+  return List.fold_left((function (total, coordinate) {
+                return total + distance(origin, coordinate) | 0;
+              }), 0, coordinates);
+}
+
+function secondAnswer(coordinates, maxDistance) {
+  var match = rangeIn(getX, coordinates);
+  var match$1 = rangeIn(getY, coordinates);
+  var space = gridWithBoundaries(match[0], match[1], match$1[0], match$1[1]);
+  return Curry._1(CoordinateSet[/* cardinal */18], $$Array.fold_left((function (set, gridLocation) {
+                    if (totalDistance(gridLocation, coordinates) < maxDistance) {
+                      return Curry._2(CoordinateSet[/* add */3], gridLocation, set);
+                    } else {
+                      return set;
+                    }
+                  }), CoordinateSet[/* empty */0], space));
+}
+
+console.log(secondAnswer(inputCoordinates(/* () */0), 10000));
+
 exports.Coordinate = Coordinate;
 exports.CoordinateMap = CoordinateMap;
+exports.CoordinateSet = CoordinateSet;
 exports.IntSet = IntSet;
 exports.getX = getX;
 exports.getY = getY;
@@ -188,5 +215,8 @@ exports.rangeIn = rangeIn;
 exports.distance = distance;
 exports.inspectList = inspectList;
 exports.closestBy = closestBy;
+exports.gridWithBoundaries = gridWithBoundaries;
 exports.firstAnswer = firstAnswer;
+exports.totalDistance = totalDistance;
+exports.secondAnswer = secondAnswer;
 /* CoordinateMap Not a pure module */

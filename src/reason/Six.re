@@ -6,6 +6,7 @@ module Coordinate = {
 };
 
 module CoordinateMap = Map.Make(Coordinate);
+module CoordinateSet = Set.Make(Coordinate);
 module IntSet =
   Set.Make({
     type t = int;
@@ -96,12 +97,7 @@ let closestBy =
   );
 };
 
-let firstAnswer = (coordinates: list(coordinate)) => {
-  let boundaryCoordinates = boundaryCoordinates(coordinates);
-
-  let (minX, maxX) = rangeIn(getX, coordinates);
-  let (minY, maxY) = rangeIn(getY, coordinates);
-
+let gridWithBoundaries = (minX, maxX, minY, maxY) => {
   let space = [||];
 
   for (x in minX to maxX) {
@@ -110,6 +106,17 @@ let firstAnswer = (coordinates: list(coordinate)) => {
       ();
     };
   };
+
+  space;
+};
+
+let firstAnswer = (coordinates: list(coordinate)) => {
+  let boundaryCoordinates = boundaryCoordinates(coordinates);
+
+  let (minX, maxX) = rangeIn(getX, coordinates);
+  let (minY, maxY) = rangeIn(getY, coordinates);
+
+  let space = gridWithBoundaries(minX, maxX, minY, maxY);
 
   let noSharedCoordinates = (areaA, areaB) => {
     let axs = IntSet.of_list(List.map(getX, areaA));
@@ -156,3 +163,33 @@ let firstAnswer = (coordinates: list(coordinate)) => {
 
   List.length(area);
 };
+
+let totalDistance = (origin: coordinate, coordinates: list(coordinate)) =>
+  List.fold_left(
+    (total, coordinate) => total + distance(origin, coordinate),
+    0,
+    coordinates,
+  );
+
+let secondAnswer = (coordinates: list(coordinate), maxDistance: int) => {
+  let (minX, maxX) = rangeIn(getX, coordinates);
+  let (minY, maxY) = rangeIn(getY, coordinates);
+
+  let space = gridWithBoundaries(minX, maxX, minY, maxY);
+
+  let region =
+    Array.fold_left(
+      (set, gridLocation) =>
+        if (totalDistance(gridLocation, coordinates) < maxDistance) {
+          CoordinateSet.add(gridLocation, set);
+        } else {
+          set;
+        },
+      CoordinateSet.empty,
+      space,
+    );
+
+  CoordinateSet.cardinal(region);
+};
+
+Js.log(secondAnswer(inputCoordinates(), 10000));
